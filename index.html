@@ -1,0 +1,796 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>SpikeMatch: Semi-Supervised Learning with Temporal Dynamics of Spiking Neural Networks</title>
+
+    <!-- Favicon references -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <meta
+        content="SpikeMatch: Semi-Supervised Learning with Temporal Dynamics of Spiking Neural Networks"
+        name="description" />
+    <meta
+        content="SpikeMatch: Semi-Supervised Learning with Temporal Dynamics of Spiking Neural Networks"
+        property="og:title" />
+    <meta
+        content="SpikeMatch: Semi-Supervised Learning with Temporal Dynamics of Spiking Neural Networks"
+        property="og:description" />
+    <meta
+        content="SpikeMatch: Semi-Supervised Learning with Temporal Dynamics of Spiking Neural Networks"
+        property="twitter:title" />
+    <meta
+        content="SpikeMatch: Semi-Supervised Learning with Temporal Dynamics of Spiking Neural Networks"
+        property="twitter:description" />
+    <meta property="og:type" content="website" />
+    <meta content="summary_large_image" name="twitter:card" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+        crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Varela+Round&display=swap"
+        rel="stylesheet">
+    <link href="style.css?" rel="stylesheet" type="text/css" />
+
+    <!-- 🔎 Added minimal CSS for click‑to‑zoom lightbox -->
+    <style>
+      /* make images clearly zoomable */
+      img.zoomable { cursor: zoom-in; transition: transform .2s ease; }
+
+      /* fullscreen overlay */
+      .lightbox-overlay {
+        position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+        background: rgba(0,0,0,.9); z-index: 10000;
+      }
+      .lightbox-overlay.active { display: flex; }
+      .lightbox-overlay img { max-width: 95vw; max-height: 95vh; box-shadow: 0 10px 40px rgba(0,0,0,.6); border-radius: 8px; }
+      /* show zoom-out cursor while overlay is open */
+      .lightbox-overlay, .lightbox-overlay * { cursor: zoom-out; }
+
+      /* prevent background scroll when overlay is open */
+      body.no-scroll { overflow: hidden; }
+    </style>
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$','$$'], ['\\[','\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container">
+            <nav class="main-nav">
+                <ul class="nav-links">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#motivation">Motivation</a></li>
+                    <li><a href="#framework">Framework</a></li>
+                    <li><a href="#experimental-results">Experiment</a></li>
+                    <li><a href="#analysis">Analysis</a></li>
+                    <li><a href="#conclusion">Conclusion</a></li>
+                    <li><a href="#citation">Citation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="title-row">
+                <div class="title-flex">
+                    <div class="title-text-block">
+                        <h1 class="title"><span class="gradient-text">SpikeMatch</span>: Semi-Supervised Learning with Temporal Dynamics <span class="title-break"></span> of Spiking Neural Networks</h1>
+                        <h1 class="subtitle">arXiv 2025</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="base-row author-row">
+                <div class="base-col author-col">
+                    <a href= "https://github.com/sheep1283" target ="_blank" class="author-text">
+                        Jini Yang <sup>1,2</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://github.com/oh2279" target="_blank" class="author-text">
+                        Beomseok Oh<sup>2</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://cvlab.kaist.ac.kr/" target="_blank" class="author-text">
+                        Seungryong Kim<sup>1</sup>
+                    </a>
+                </div>
+                <div class="base-col author-col">
+                    <a href="https://cvlab.kau.ac.kr/" target="_blank" class="author-text">
+                        Sunok Kim<sup>2,†</sup>
+                    </a>
+                </div>
+            </div>
+
+            <div class="base-row author-row">
+                <div class="base-col author-col affiliations">
+                    <sup>1</sup>KAIST AI &nbsp;&nbsp; <sup>2</sup>Korea Aerospace University &nbsp;&nbsp;
+                    <br>
+                    <sup>†</sup>Corresponding Author
+                </div>
+            </div>
+            <div class="link-labels base-row">
+                <div class="base-col icon-col"><a href="https://arxiv.org" target="_blank"
+                        class="link-block">
+                        <i class="fa fas fa-file-text main-icon" style="font-size: 60px"></i>
+                        <strong class="link-labels-text">Paper</strong>
+                    </a></div>
+                <div class="base-col icon-col"><a href='https://github.com/cvlab-kaist' class="link-block">
+                        <i class="fa fa-github main-icon" style="font-size: 60px"></i>
+                        <strong class="link-labels-text">Code</strong>
+                    </a></div>
+                <div class="base-col icon-col"><a href="#citation" class="link-block">
+                        <i class="fa fa-graduation-cap main-icon" style="font-size: 60px"></i>
+                        <strong class="link-labels-text">Citation</strong>
+                    </a></div>
+            </div>
+
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="tldr">
+                <b>TL;DR</b>: We propose a novel SSL method for Spiking Neural Networks (SNNs) that combines pseudo-labeling and consistency regularization within a FixMatch framework, leveraging temporal dynamics for agreement-based pseudo-labeling without extra parameters. 
+            </div>
+
+            <div id="overview" class="base-row section">
+                <h2>Overview</h2>
+                <p class="paragraph">
+                    We introduce <Strong>SpikeMatch</Strong>, an agreement-based pseudo-labeling method that treats the temporal outputs of an SNN model as multiple predictions within a co-training framework. 
+                    By simply increasing the leakage factor, addresses common challenges in semi-supervised learning,
+                 such as confirmation bias, by effectively leveraging distinct semantic features.
+                </p>
+            </div>
+            <h3>
+                Diverse predictions of SNNs
+            </h3>
+            <div class="image-container">
+                <div class="image-content">
+                    <img src="images_spikematch/co-training.png" class="img large-image" alt="co-training">
+                </div>
+            </div>
+            <p class="paragraph"> Unlike conventional ANN-based models that require extra parameters to generate multiple views, SNNs naturally produce diverse predictions across time steps through binary spike signals. SpikeMatch leverages this temporal dynamic to enable agreement-based pseudo-labeling, offering a parameter-free approach to diversity and robustness.
+            </p>
+
+            <section id="motivation" class="section">
+                <h2>Motivation</h2>
+                <p class="paragraph">
+                    We conduct an empirical analysis of the leakage factor in Leaky Integrate-and-Fire (LIF) neurons. Our results show that higher leakage from the previous time step leads to more diverse predictions, which are crucial for learning distinctive semantic features in semi-supervised settings with limited labeled data.
+                </p>
+                <div class="two-col">
+                    <div class="col-left">
+                        <h3>
+                            Discriminative features
+                        </h3>
+                        <p class="paragraph">
+                            We visualize the temporal feature responses using the Spiking Activation Map (SAM). As the leakage factor increases, the SAM outputs become more diverse across time steps, providing the model with richer feature variations that facilitate learning of class-discriminative representations.
+                        </p>
+                    </div>
+                    <div class="col-right img">
+                        <div class="image-container">
+                            <div class="image-content">
+                                <img src="images_spikematch/SAM_leak.png" class="img small-image" alt="Comparisons diagram">
+                                <p class="image-caption">
+                                    Spiking Activation Map (SAM) on leakage factor and time step variance.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="col-left">
+                        <h3>
+                            Cosine similarity
+                        </h3>
+                        <p>
+Without explicit constraints, a higher leakage factor consistently lowers cosine similarity, indicating more diverse temporal features.
+                        </p>
+                    </div>
+                    <div class="col-right img">
+                        <div class="image-container">
+                            <div class="image-content">
+                                <img src="images_spikematch/cos_sim_clean.png" class="img medium-image" alt="Comparisons diagram">
+                                <p class="image-caption">
+                                    Each column represents the average of 6 cosine similarity values computed across 4 time steps for each τ, at seeds 0, 1, and 2. The cosine similarity is calculated from 6 combinations of features from the 4 time steps at the last layer.
+                                </p>
+                            </div>
+                        <!-- <p class="image-caption">(e) Layer-wise alignment between visual tokens in MLLMs and vision encoder features measured by CKNNA, with shaded regions highlighting middle layers that are especially important for visual understanding. (f) Benchmark performance corresponding to (a–d) </p> -->
+                        </div>
+                    </div>
+                </div>
+                <h3>
+                    Other diversity metrics 
+                </h3>
+                <div class="image-container">
+                    <div class="image-content">
+                        <img src="images_spikematch/div_tv_rank.png" class="img large-image" alt="Comparisons diagram">
+                    </div>
+                </div>
+                <p class="paragraph">
+To validate that a higher leakage factor (τ) improves temporal diversity, we analyze CIFAR-10 using KL divergence, temporal variance, and effective rank. All three metrics consistently increase as τ grows, confirming more diverse and distinct temporal features.
+
+
+            </section>
+
+            <section id="framework" class="section">
+                <h2>Co-training framework</h2>
+                <p></p>
+                <div class="image-container">
+                    <div class="image-content">
+                        <img src="images_spikematch/overall_framework.png" class="img large-image" alt="Overall framework">
+                        <div class="image-caption">
+<p>
+<strong>(left)</strong>: A labeled image <span style="color: #FA6C64;">(red)</span> and unlabeled images 
+<span style="color: #8FbDF4;">(blue)</span>, <span style="color: #97B557;">(green)</span> pass through the SNN, producing <em>M</em> averaged predictions. Weakly augmented outputs guide strong ones via agreement-based pseudo-labeling.
+</p>
+<p>
+<strong>(right)</strong>: A pseudo-label <span style="color: #97B557;">(green)</span> is adopted only when the remaining <em>M−1</em> predictions <span style="color: #8FbDF4;">(blue)</span> agree on the same class, with the highest-confidence output selected.
+</p>
+                        </div>
+                    </div>
+                </div>
+                <p>
+SpikeMatch treats temporal outputs as multiple views within one SNN. Agreement among weakly augmented predictions generates reliable pseudo-labels for strong augmentations, enabling co-training without extra parameters.
+                </p>
+            </section>
+            
+            <section id="experimental-results" class="section">
+                <h2> Experimental results </h2>
+                <p class="paragraph"> We evaluate SpikeMatch on CIFAR-10, STL-10, ImageNet, and neuromorphic datasets, demonstrating its effectiveness across diverse benchmarks for semi-supervised image classification.</p> 
+                <h3>Results on CIFAR-10 & CIFAR-100 under various label conditions</h3>
+                    <p class="paragraph">
+                    SpikeMatch consistently outperforms existing semi-supervised learning methods across different label regimes on CIFAR-10 and CIFAR-100. 
+                    Even with extremely few labeled samples per class, our approach achieves higher accuracy and stability by leveraging temporal agreement for reliable pseudo-labeling.
+                    </p>
+                <div class="table-container">
+                    <table class="advantages-table">
+                        <thead>
+                            <tr>
+                            <th rowspan="1">Dataset</th>
+                            <th colspan="3">CIFAR-10</th>
+                            <th colspan="3">CIFAR-100</th>
+                            </tr>
+                            <tr>
+                            <th>Labels</th>
+                            <th>4</th>
+                            <th>25</th>
+                            <th>400</th>
+                            <th>4</th>
+                            <th>25</th>
+                            <th>100</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>UDA</td>
+                            <td>69.72<weak>±6.65</weak></td>
+                            <td>87.76<weak>±0.21</weak></td>
+                            <td>90.06<weak>±0.06</weak></td>
+                            <td>44.66<weak>±1.63</weak></td>
+                            <td>60.35<weak>±0.67</weak></td>
+                            <td>66.51<weak>±0.15</weak></td>
+                            </tr>
+                            <tr>
+                            <td>FixMatch</td>
+                            <td>67.97<weak>±4.42</weak></td>
+                            <td>86.84<weak>±0.91</weak></td>
+                            <td>89.40<weak>±0.23</weak></td>
+                            <td>38.39<weak>±0.91</weak></td>
+                            <td>58.40<weak>±0.48</weak></td>
+                            <td>64.75<weak>±0.17</weak></td>
+                            </tr>
+                            <tr>
+                            <td>AdaMatch</td>
+                            <td>82.13<weak>±6.98</weak></td>
+                            <td>87.15<weak>±0.62</weak></td>
+                            <td>89.44<weak>±0.11</weak></td>
+                            <td>44.54<weak>±2.52</weak></td>
+                            <td>59.52<weak>±0.24</weak></td>
+                            <td>65.86<weak>±0.44</weak></td>
+                            </tr>
+                            <tr>
+                            <td>FreeMatch</td>
+                            <td>85.65<weak>±4.16</weak></td>
+                            <td>87.86<weak>±0.34</weak></td>
+                            <td>89.64<weak>±0.27</weak></td>
+                            <td>46.49<weak>±2.75</weak></td>
+                            <td>62.01<weak>±0.27</weak></td>
+                            <td>67.10<weak>±0.35</weak></td>
+                            </tr>
+                            <tr>
+                            <td>SoftMatch</td>
+                            <td>84.27<weak>±7.69</weak></td>
+                            <td>87.97<weak>±0.18</weak></td>
+                            <td>89.91<weak>±0.28</weak></td>
+                            <td>45.99<weak>±3.06</weak></td>
+                            <td>61.97<weak>±0.53</weak></td>
+                            <td>67.35<weak>±0.08</weak></td>
+                            </tr>
+                            <tr>
+                            <td>RegMixMatch</td>
+                            <td>82.59<weak>±4.02</weak></td>
+                            <td>87.36<weak>±0.55</weak></td>
+                            <td>90.08<weak>±0.65</weak></td>
+                            <td>38.49<weak>±3.09</weak></td>
+                            <td>60.27<weak>±1.96</weak></td>
+                            <td>66.69<weak>±0.24</weak></td>
+                            </tr>
+                            <tr class="highlight-row">
+                            <td>SpikeMatch w/o TET</td>
+                            <td>87.98<weak>±0.51</weak></td>
+                            <td>88.13<weak>±0.37</weak></td>
+                            <td><strong>91.00</strong><weak>±0.002</weak></td>
+                            <td>47.45<weak>±1.79</weak></td>
+                            <td>63.18<weak>±0.09</weak></td>
+                            <td>69.37<weak>±0.003</weak></td>
+                            </tr>
+                            <tr class="highlight-row">
+                            <td>SpikeMatch</td>
+                            <td><strong>88.13</strong><weak>±0.79</weak></td>
+                            <td><strong>88.36</strong><weak>±0.06</weak></td>
+                            <td>90.93<weak>±0.04</weak></td>
+                            <td><strong>47.52</strong><weak>±2.18</weak></td>
+                            <td><strong>63.34</strong><weak>±0.04</weak></td>
+                            <td><strong>69.50</strong><weak>±0.17</weak></td>
+                            </tr>
+                        </tbody>
+                </table>
+                    <p class="image-caption"> Accuracy (%) on CIFAR-10 and CIFAR-100 of 3 different random seeds. The best results is in bold.</p>
+                </div>  
+                <div class="two-col">
+                    <div class="col-left">
+                        <h3>
+                            ImageNet with 100 labels per class
+                        </h3>
+                        <p class="paragraph">
+On ImageNet with SEW-ResNet-50, SpikeMatch outperforms SoftMatch, showing strong effectiveness even with large-scale data and deep backbones.
+
+                        </p>
+                    </div>
+                    <div class="col-right-table">
+                        <table class="advantages-table">
+                        <thead>
+                            <tr>
+                            <th rowspan="2">Methods</th>
+                            </tr>
+                            <tr>
+                            <th>Top-1</th>
+                            <th>Top-5</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>SoftMatch</td>
+                            <td>45.66</td>
+                            <td>71.44</td>
+                            </tr>
+                            <tr class="highlight-row">
+                            <td>SpikeMatch</td>
+                            <td><strong>49.68</strong></td>
+                            <td><strong>75.07</strong></td>
+                            </tr>
+                        </table>
+                        <div class="image-caption">
+                            Accuracy (%) on ImageNet using 100 labels per class.
+                        </div>
+                    </div>
+                </div>
+                <div class="two-col">
+                    <div class="col-left">
+                        <h3>
+                            DVS-CIFAR-10 with 1% labels
+                        </h3>
+                        <p class="paragraph">
+We evaluate SpikeMatch on the event-based CIFAR10-DVS dataset, preserving the temporal structure of events and capturing their intrinsic diverse patterns.
+                        </p>
+                    </div>
+                    <div class="col-right-table">
+                        <table class="advantages-table">
+                        <thead>
+                            <tr>
+                            <th rowspan="2"></th>
+                            </tr>
+                            <tr>
+                            <th>DVS-CIFAR-10</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>FreeMatch</td>
+                            <td>36.40</td>
+                            </tr>
+                            <tr>
+                            <td>SoftMatch</td>
+                            <td>37.40</td>
+                            </tr>
+                            <tr class="highlight-row">
+                            <td>SpikeMatch</td>
+                            <td><strong>49.80</strong></td>
+                            </tr>
+                        </table>
+                        <div class="image-caption">
+                            Accuracy (%) on DVS-CIFAR10 with 1% labels.
+                        </div>
+                    </div>
+                </div>
+                <h3>
+                    STL-10 with 4 labels per class
+                </h3>
+                <div class="table-container">
+                    <table class="advantages-table">
+                        <thead>
+                            <tr>
+                            <th rowspan="2">Seed</th>
+                            </tr>
+                            <tr>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>Mean</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>FreeMatch</td>
+                            <td>56.73</td>
+                            <td>49.94</td>
+                            <td>57.00</td>
+                            <td>54.55<weak>±4.00</weak></td>
+                            </tr>
+                            <tr>
+                            <td>SoftMatch</td>
+                            <td>58.40</td>
+                            <td>50.58</td>
+                            <td>58.14</td>
+                            <td>55.70<weak>±4.44</weak></td>
+                            </tr>
+                            <tr class="highlight-row">
+                            <td>SpikeMatch</td>
+                            <td><strong>62.36</strong></td>
+                            <td><strong>64.69</strong></td>
+                            <td><strong>61.36</strong></td>
+                            <td><strong>62.80<weak>±1.70</weak></strong></td>
+                            </tr>
+                        </table>
+                        <div class="image-caption">
+                            Accuracy (%) on STL-10 with 40 labeled samples.
+                        </div>
+                </div>
+                <p class="paragraph">
+On the more challenging STL-10 dataset with high-resolution images, SpikeMatch outperforms SoftMatch while maintaining stable performance.
+                </p>
+            </section>
+
+            <section id="analysis" class="section">
+                <h2>Analysis</h2>
+                <h3>Energy and label efficiency</h3>
+                <div class="two-col">
+                    <div class="col-left">
+                        <p class="paragraph">
+On CIFAR-10 with only one label per class, SpikeMatch surpasses state-of-the-art ANN methods while preserving over 20× higher energy efficiency, making it practical for low-label, low-power settings.
+                        </p>
+                    </div>
+                    <div class="col-right-table">
+                        <table class="advantages-table">
+                            <thead>
+                                <tr>
+                                <th rowspan="2">Seed</th>
+                                </tr>
+                                <tr>
+                                <th>Accuracy</th>
+                                <th>Energy Efficiency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <td>FixMatch (ANN)</td>
+                                <td>78.69<weak>±9.13</weak></td>
+                                <td>1X</td>
+                                </tr>
+                                <tr>
+                                <td>SoftMatch (ANN)</td>
+                                <td>79.04<weak>±12.54</weak></td>
+                                <td>1X</td>
+                                </tr>
+                                <tr class="highlight-row">
+                                <td>SpikeMatch</td>
+                                <td><strong>81.92</strong><weak>±3.06</weak></td>
+                                <td><strong>20.8X</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="image-caption">
+                            Accuracy (%) and energy consumption (including MAC) on CIFAR10 with only one label per class.
+                        </p>
+                    </div>
+                </div>
+
+                <h3>Leakage configuration</h3>
+                <div class="table-container">
+                    <table class="advantages-table">
+                        <thead>
+                            <tr>
+                            <th rowspan="2">Leakage factor</th>
+                            </tr>
+                            <tr>
+                            <th>0</th>
+                            <th>0.1</th>
+                            <th>0.3</th>
+                            <th>0.5</th>
+                            <th>0.8</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>SoftMatch</td>
+                            <td>79.71</td>
+                            <td>84.27</td>
+                            <td>84.41</td>
+                            <td>84.27</td>
+                            <td>85.52</td>
+                            </tr>
+                            <tr class="highlight-row">
+                            <td>SpikeMatch</td>
+                            <td><strong>80.16</strong><highlight> (+0.45)</highlight></td>
+                            <td><strong>85.43</strong><highlight> (+1.16)</highlight></td>
+                            <td><strong>86.33</strong><highlight> (+1.92)</highlight></td>
+                            <td><strong>88.13</strong><highlight> (+3.86)</highlight></td>
+                            <td><strong>88.17</strong><highlight> (+2.65)</highlight></td>
+                            </tr>
+                        </table>
+                        <div class="image-caption">
+                            Averaged accuracy (%) over three seeds on CIFAR-10 with 4 labels per class under different leakage factors.
+                        </div>
+                </div>
+                <p class="paragraph">
+                    Both SoftMatch and SpikeMatch benefit from a higher leakage factor, but the performance gain is more pronounced in SpikeMatch. Our agreement-based approach more effectively exploits subtle features from temporal diversity, resulting in greater improvements for semi-supervised learning.
+
+                </p>
+            </section>
+
+            <section id="visualizations" class="section">
+                <h2>Visualization of effectiveness of SpikeMatch</h2>                
+                <div class="slideshow-container">
+                    <div class="slideshow">
+                        <div class="slide">
+                            <img src="images_spikematch/SAM_stl10_div.png"
+                                class="comparison-slideshow-image" alt="Attention analysis">
+                            <div class="image-caption">Unlike FreeMatch (first row) and SoftMatch
+(second row), our method (last row) more effectively captures multiple discriminative features through the agreement-based
+approach.</div>
+                        </div>
+                        
+                        <div class="slide">
+                            <img src="images_spikematch/SAM_stl10.png"
+                                class="comparison-slideshow-image" alt="Training efficiency curves">
+                            <div class="image-caption">                FreeMatch is confused by the bird class, while SoftMatch struggles with the deer class. In contrast, SpikeMatch identifies key features such as the beak of the bird and the antlers of the deer, producing a more diagonal confusion matrix and reducing class confusion.
+</div>
+                        </div>
+
+                        <div class="slide">
+                            <img src="images_spikematch/SAM_cifar10.png"
+                                class="comparison-slideshow-image" alt="Permutation robustness bar chart">
+                            <div class="image-caption">                FreeMatch and SoftMatch fail to clearly distinguish cats and dogs, whereas SpikeMatch captures distinctive features of both classes, leading to a sharper confusion matrix with fewer misclassifications.
+</div>
+                        </div>
+
+                    </div>
+
+                    <button class="slideshow-nav prev" onclick="changeSlide(-1)">❮</button>
+                    <button class="slideshow-nav next" onclick="changeSlide(1)">❯</button>
+                    
+                    <div class="slideshow-controls">
+                        <button class="play-pause" onclick="togglePlayPause()">
+                            <i class="fa fa-pause"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+                
+                
+
+            <section id="conclusion" class="section">
+                <h2>Conclusion</h2>
+
+                <p class="paragraph">
+                    In this work, we presented SpikeMatch, a semi-supervised learning (SSL) framework
+                    for SNNs that utilize their temporal dynamics via the leakage factor to achieve diverse
+                    pseudo-labeling within a co-training framework. By utilizing 
+                    agreement among multiple predictions from a single SNN, 
+                    SpikeMatch produces reliable pseudo-labels from weakly augmented unlabeled samples to train on strongly
+                    augmented ones, effectively mitigating confirmation bias and enhancing feature learning with limited labeled data.
+                    Experiments show that SpikeMatch outperforms existing SSL methods adapted to SNNs across benchmarks.
+                </p>
+            </section>
+
+            <div class="citation add-top-padding">
+                <h1 id="citation">Citation</h1>
+                <p> If you use this work or find it helpful, please consider citing: </p>
+                <pre id="codecell0">
+    @misc{}
+                </pre>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p class="credit">Credit: The design of this project page is inspired by previous academic project pages, such as <a href="https://llm-grounded-diffusion.github.io/" target="_blank">LLM-grounded Diffusion</a>, <a href="https://describe-anything.github.io/" target="_blank">Describe-anything</a>, and <a href="https://cvlab-kaist.github.io/VIRAL/" target="_blank">VIRAL</a>.</p>
+        </div>
+    </footer>
+
+    <script>
+    function toggleMute(element) {
+        const video = element.parentElement.querySelector('video');
+        const icon = element.querySelector('i');
+        const text = element.querySelector('.unmute-text');
+        
+        if (video.muted) {
+            video.muted = false;
+            icon.className = 'fa fa-volume-up';
+            text.textContent = 'Mute';
+        } else {
+            video.muted = true;
+            icon.className = 'fa fa-volume-off';
+            text.textContent = 'Click to unmute';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            video.addEventListener('play', function() {
+                const overlay = this.parentElement.querySelector('.unmute-overlay');
+                if (overlay) overlay.style.opacity = '0.8';
+            });
+            
+            video.addEventListener('pause', function() {
+                const overlay = this.parentElement.querySelector('.unmute-overlay');
+                if (overlay) overlay.style.opacity = '0.8';
+            });
+        });
+
+        // Initialize all slideshows
+        document.querySelectorAll('.slideshow-container').forEach(container => {
+            const slideshow = container.querySelector('.slideshow');
+            const slides = slideshow.querySelectorAll('.slide');
+            const prevButton = container.querySelector('.slideshow-nav.prev');
+            const nextButton = container.querySelector('.slideshow-nav.next');
+            const playPauseButton = container.querySelector('.play-pause');
+            
+            let currentSlide = 0;
+            let autoplayInterval;
+            let isPlaying = true;
+
+            function showSlide(n) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                currentSlide = (n + slides.length) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }
+
+            function changeSlide(n) {
+                showSlide(currentSlide + n);
+                resetAutoplay();
+            }
+
+            function togglePlayPause() {
+                if (isPlaying) {
+                    clearInterval(autoplayInterval);
+                    playPauseButton.innerHTML = '<i class="fa fa-play"></i>';
+                } else {
+                    startAutoplay();
+                    playPauseButton.innerHTML = '<i class="fa fa-pause"></i>';
+                }
+                isPlaying = !isPlaying;
+            }
+
+            function startAutoplay() {
+                autoplayInterval = setInterval(() => {
+                    showSlide(currentSlide + 1);
+                }, 5000);
+            }
+
+            function resetAutoplay() {
+                clearInterval(autoplayInterval);
+                if (isPlaying) {
+                    startAutoplay();
+                }
+            }
+
+            // Initialize this slideshow
+            showSlide(0);
+            startAutoplay();
+
+            // Add event listeners
+            prevButton.addEventListener('click', () => changeSlide(-1));
+            nextButton.addEventListener('click', () => changeSlide(1));
+            playPauseButton.addEventListener('click', togglePlayPause);
+        });
+
+        // Handle main video play button
+        const mainVideo = document.querySelector('.main-video');
+        const playButton = document.querySelector('.play-button-overlay');
+        
+        if (mainVideo && playButton) {
+            // Click play button to play video
+            playButton.addEventListener('click', () => {
+                mainVideo.play();
+                mainVideo.classList.add('playing');
+            });
+
+            // Handle video play/pause events
+            mainVideo.addEventListener('play', () => {
+                mainVideo.classList.add('playing');
+            });
+
+            mainVideo.addEventListener('pause', () => {
+                mainVideo.classList.remove('playing');
+            });
+
+            mainVideo.addEventListener('ended', () => {
+                mainVideo.classList.remove('playing');
+            });
+        }
+
+        // -----------------------------
+        // 🖼️ Click-to-zoom Lightbox
+        // -----------------------------
+        // Build overlay once
+        const lightbox = document.createElement('div');
+        lightbox.className = 'lightbox-overlay';
+        lightbox.setAttribute('role', 'dialog');
+        lightbox.setAttribute('aria-modal', 'true');
+        lightbox.innerHTML = '<img alt="Expanded image">';
+        document.body.appendChild(lightbox);
+        const lightboxImg = lightbox.querySelector('img');
+
+        function openLightbox(src, alt) {
+            lightboxImg.src = src;
+            lightboxImg.alt = alt || '';
+            lightbox.classList.add('active');
+            document.body.classList.add('no-scroll');
+        }
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+            lightboxImg.src = '';
+        }
+
+        // Close on click anywhere or on Esc
+        lightbox.addEventListener('click', closeLightbox);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox();
+        });
+
+        // Mark target images as zoomable and wire up click
+        const zoomableImages = document.querySelectorAll('.image-container img, .slideshow img, .main-content img.img, .hero-section img.img');
+        zoomableImages.forEach(img => {
+            img.classList.add('zoomable');
+            img.addEventListener('click', () => {
+                // support optional high-res source via data-fullsrc
+                const src = img.getAttribute('data-fullsrc') || img.currentSrc || img.src;
+                openLightbox(src, img.alt);
+            });
+        });
+    });
+    </script>
+</body>
+</html>
